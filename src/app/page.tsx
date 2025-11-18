@@ -1,6 +1,8 @@
 "use client";
 
 const ACCENT = "#39ff14";
+const TEXT_MESSAGE =
+  "Hi Frankie, I'm reaching out so we can connect and work on making change easier.";
 
 const contact = {
   firstName: "Frankie",
@@ -37,48 +39,6 @@ const createVCard = () => {
   return lines.join("\r\n");
 };
 
-const formatDate = (date: Date) =>
-  date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-
-const createCalendarInvite = () => {
-  const now = new Date();
-  const start = new Date(now);
-  start.setDate(start.getDate() + 1);
-  start.setHours(9, 0, 0, 0);
-
-  const end = new Date(start.getTime() + 30 * 60 * 1000);
-
-  const description = [
-    "Call Frankie Carioti (Change Agent, Carioti Properties).",
-    `Phone: ${contact.phoneDisplay}`,
-    `Email: ${contact.email}`,
-    `Websites: ${contact.websites.join(" | ")}`,
-  ].join("\\n");
-
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//CariotiProperties//DigitalCard//EN",
-    "BEGIN:VEVENT",
-    `UID:${crypto.randomUUID?.() ?? `${now.getTime()}@cariotiproperties.com`}`,
-    `DTSTAMP:${formatDate(now)}`,
-    `DTSTART:${formatDate(start)}`,
-    `DTEND:${formatDate(end)}`,
-    "SUMMARY:Call Frankie Carioti",
-    `DESCRIPTION:${description}`,
-    "LOCATION:Phone",
-    "BEGIN:VALARM",
-    "TRIGGER:-PT10M",
-    "ACTION:DISPLAY",
-    "DESCRIPTION:Reminder to call Frankie Carioti",
-    "END:VALARM",
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ];
-
-  return lines.join("\r\n");
-};
-
 const downloadFile = (content: string, filename: string, mime: string) => {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -91,6 +51,23 @@ const downloadFile = (content: string, filename: string, mime: string) => {
   URL.revokeObjectURL(url);
 };
 
+const openTextMessageThread = () => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return;
+  }
+
+  const userAgent = navigator.userAgent || "";
+  const isIOS =
+    /iPad|iPhone|iPod/.test(userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const separator = isIOS ? "&" : "?";
+  const smsUrl = `sms:${contact.phoneDial}${separator}body=${encodeURIComponent(
+    TEXT_MESSAGE
+  )}`;
+
+  window.location.assign(smsUrl);
+};
+
 export default function Home() {
   const handleSaveAssets = () => {
     downloadFile(
@@ -99,13 +76,7 @@ export default function Home() {
       "text/vcard;charset=utf-8"
     );
 
-    window.setTimeout(() => {
-      downloadFile(
-        createCalendarInvite(),
-        "call-frankie.ics",
-        "text/calendar;charset=utf-8"
-      );
-    }, 250);
+    openTextMessageThread();
   };
 
   return (
@@ -123,7 +94,7 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-[32px] border border-white/15 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),rgba(26,30,34,0.95))] p-7 shadow-[0_30px_90px_rgba(0,0,0,0.85)]">
           <div className="absolute inset-0 rounded-[32px] border border-white/5" />
           <div className="relative flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-center gap-2 text-center">
               <p
                 className="text-xs font-semibold uppercase tracking-[0.55em]"
                 style={{ color: ACCENT }}
@@ -133,37 +104,6 @@ export default function Home() {
               <h1 className="text-4xl font-semibold leading-none text-white drop-shadow-lg">
                 Real Estate
               </h1>
-              <p className="mt-3 max-w-xs text-sm text-white/70">
-                Frankie crafts experiences that make every transition into a new
-                season of life effortless.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-              <div className="flex flex-col gap-3 text-sm font-medium tracking-wide">
-                <div className="flex flex-col">
-                  <span className="text-xs uppercase tracking-[0.3em] text-white/50">
-                    Name
-                  </span>
-                  <span className="text-lg text-white">
-                    {contact.firstName} {contact.lastName}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs uppercase tracking-[0.3em] text-white/50">
-                    Title
-                  </span>
-                  <span className="text-base text-white">{contact.title}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs uppercase tracking-[0.3em] text-white/50">
-                    Company
-                  </span>
-                  <span className="text-base text-white">
-                    {contact.company}
-                  </span>
-                </div>
-              </div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -172,7 +112,7 @@ export default function Home() {
                 onClick={handleSaveAssets}
                 className="save-contact-jiggle inline-flex w-full items-center justify-center rounded-2xl border border-[rgba(57,255,20,0.75)] bg-[rgba(57,255,20,0.12)] px-6 py-4 text-lg font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25),_0_15px_25px_rgba(0,0,0,0.45)] transition hover:scale-[1.02] hover:bg-[rgba(57,255,20,0.18)]"
               >
-                Save contact & reminder
+                Save contact & text Frankie
               </button>
             </div>
 
