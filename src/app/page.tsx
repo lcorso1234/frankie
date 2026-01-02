@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 const ACCENT = "#39ff14";
 const TEXT_MESSAGE =
   "Hi Frankie, I'm reaching out so we can connect and work on making change easier.\n\nMy name: [Your Name]\nMy email: [your@email.com]";
@@ -60,7 +62,11 @@ const downloadFile = (content: string, filename: string, mime: string) => {
   });
 };
 
-const openTextMessageThread = () => {
+const buildTextMessage = (name = "", email = "") => {
+  return TEXT_MESSAGE.replace("[Your Name]", name || "[Your Name]").replace("[your@email.com]", email || "[your@email.com]");
+};
+
+const openTextMessageThread = (body: string) => {
   if (typeof window === "undefined" || typeof navigator === "undefined") {
     return;
   }
@@ -71,13 +77,37 @@ const openTextMessageThread = () => {
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const separator = isIOS ? "&" : "?";
   const smsUrl = `sms:${contact.phoneDial}${separator}body=${encodeURIComponent(
-    TEXT_MESSAGE
+    body
   )}`;
 
   window.location.assign(smsUrl);
 };
 
 export default function Home() {
+  const [showCompose, setShowCompose] = useState(false);
+  const [senderName, setSenderName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [composeError, setComposeError] = useState("");
+
+  const handleOpenMessages = () => {
+    if (!senderName.trim()) {
+      setComposeError("Please enter your name.");
+      return;
+    }
+    if (!senderEmail.trim()) {
+      setComposeError("Please enter your email.");
+      return;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(senderEmail)) {
+      setComposeError("Please enter a valid email address.");
+      return;
+    }
+    setComposeError("");
+    openTextMessageThread(buildTextMessage(senderName.trim(), senderEmail.trim()));
+    setShowCompose(false);
+  };
+
   const handleSaveAssets = async () => {
     // Wait until the download has been initiated and cleaned up
     await downloadFile(
@@ -86,16 +116,8 @@ export default function Home() {
       "text/vcard;charset=utf-8"
     );
 
-    // Prompt the user before opening Messages so they can confirm
-    if (typeof window !== "undefined") {
-      const open = window.confirm(
-        "Contact saved. Open Messages to send a text to Frankie? Please add your name and email in the message before sending."
-      );
-
-      if (open) {
-        openTextMessageThread();
-      }
-    }
+    // Show modal to collect sender name and email before opening Messages
+    setShowCompose(true);
   };
 
   return (
@@ -144,6 +166,29 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {showCompose && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 text-black">
+            <h2 className="mb-2 text-lg font-semibold">Add your name & email</h2>
+            <p className="mb-4 text-sm text-gray-600">These will be added to the text message.</p>
+            <label className="block mb-2">
+              <span className="text-sm">Name</span>
+              <input value={senderName} onChange={(e) => setSenderName(e.target.value)} className="mt-1 block w-full rounded-md border px-3 py-2" />
+            </label>
+            <label className="block mb-4">
+              <span className="text-sm">Email</span>
+              <input type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} className="mt-1 block w-full rounded-md border px-3 py-2" />
+            </label>
+            {composeError && <p className="mb-2 text-sm text-red-600">{composeError}</p>}
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowCompose(false)} className="rounded px-4 py-2">Cancel</button>
+              <button type="button" onClick={handleOpenMessages} className="ml-2 rounded bg-[rgba(57,255,20,0.12)] px-4 py-2 font-semibold">Open Messages</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }
