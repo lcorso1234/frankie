@@ -40,15 +40,24 @@ const createVCard = () => {
 };
 
 const downloadFile = (content: string, filename: string, mime: string) => {
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Return a promise so callers can wait for the download to be initiated
+  return new Promise<void>((resolve) => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+
+    // Keep the object URL and link in the DOM for a short time to ensure the browser
+    // has time to start the download, then clean up and resolve.
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      resolve();
+    }, 700);
+  });
 };
 
 const openTextMessageThread = () => {
@@ -69,14 +78,24 @@ const openTextMessageThread = () => {
 };
 
 export default function Home() {
-  const handleSaveAssets = () => {
-    downloadFile(
+  const handleSaveAssets = async () => {
+    // Wait until the download has been initiated and cleaned up
+    await downloadFile(
       createVCard(),
       "frankie-carioti.vcf",
       "text/vcard;charset=utf-8"
     );
 
-    openTextMessageThread();
+    // Prompt the user before opening Messages so they can confirm
+    if (typeof window !== "undefined") {
+      const open = window.confirm(
+        "Contact saved. Open Messages to send a text to Frankie?"
+      );
+
+      if (open) {
+        openTextMessageThread();
+      }
+    }
   };
 
   return (
