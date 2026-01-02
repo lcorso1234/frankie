@@ -2,7 +2,7 @@
 
 const ACCENT = "#39ff14";
 const TEXT_MESSAGE =
-  "Hi Frankie, I'm reaching out so we can connect and work on making change easier.";
+  "Hi Frankie, I'm reaching out so we can connect and work on making change easier.\n\nMy name: [Your Name]\nMy email: [your@email.com]";
 
 const contact = {
   firstName: "Frankie",
@@ -89,7 +89,7 @@ export default function Home() {
     // Prompt the user before opening Messages so they can confirm
     if (typeof window !== "undefined") {
       const open = window.confirm(
-        "Contact saved. Open Messages to send a text to Frankie?"
+        "Contact saved. Open Messages to send a text to Frankie? Please add your name and email in the message before sending."
       );
 
       if (open) {
