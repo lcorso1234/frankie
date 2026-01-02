@@ -169,21 +169,21 @@ export default function Home() {
 
       {showCompose && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 text-black">
-            <h2 className="mb-2 text-lg font-semibold">Add your name & email</h2>
-            <p className="mb-4 text-sm text-gray-600">These will be added to the text message.</p>
+          <div className="w-full max-w-md rounded-lg bg-[#2b2f33] p-6 text-white">
+            <h2 className="mb-2 text-lg font-semibold text-white">Add your name & email</h2>
+            <p className="mb-4 text-sm text-white/80">These will be added to the text message.</p>
             <label className="block mb-2">
-              <span className="text-sm">Name</span>
-              <input value={senderName} onChange={(e) => setSenderName(e.target.value)} className="mt-1 block w-full rounded-md border px-3 py-2" />
+              <span className="text-sm text-white/80">Name</span>
+              <input value={senderName} onChange={(e) => setSenderName(e.target.value)} className="mt-1 block w-full rounded-md border border-[#39ff14] bg-[#2b2f33] px-3 py-2 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#39ff14]/40" />
             </label>
             <label className="block mb-4">
-              <span className="text-sm">Email</span>
-              <input type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} className="mt-1 block w-full rounded-md border px-3 py-2" />
+              <span className="text-sm text-white/80">Email</span>
+              <input type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} className="mt-1 block w-full rounded-md border border-[#39ff14] bg-[#2b2f33] px-3 py-2 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#39ff14]/40" />
             </label>
-            {composeError && <p className="mb-2 text-sm text-red-600">{composeError}</p>}
+            {composeError && <p className="mb-2 text-sm text-red-400">{composeError}</p>}
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setShowCompose(false)} className="rounded px-4 py-2">Cancel</button>
-              <button type="button" onClick={handleOpenMessages} className="ml-2 rounded bg-[rgba(57,255,20,0.12)] px-4 py-2 font-semibold">Open Messages</button>
+              <button type="button" onClick={() => setShowCompose(false)} className="rounded px-4 py-2 border border-white/10 text-white/90">Cancel</button>
+              <button type="button" onClick={handleOpenMessages} className="ml-2 rounded bg-[#39ff14] px-4 py-2 font-semibold text-white shadow-[0_10px_30px_rgba(57,255,20,0.18)]">Open Messages</button>
             </div>
           </div>
         </div>
